@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LocalStorage Form</title>
+</head>
+<body>
+
+    <h2>User Information Form</h2>
+
+    <form id="userForm">
+
+        <label>Name:</label>
+        <input type="text" id="name" required>
+        <br><br>
+
+        <label>Email:</label>
+        <input type="email" id="email" required>
+        <br><br>
+
+        <label>Phone Number:</label>
+        <input type="tel" id="phone" required>
+        <br><br>
+
+        <button type="submit">Save Data</button>
+
+    </form>
+
+    <h2>Saved User Information</h2>
+
+    <div id="displayData"></div>
+
+    <script>
+
+        // Get form element
+        const form = document.getElementById("userForm");
+
+        // Get display element
+        const displayData = document.getElementById("displayData");
+
+        // Save data when form is submitted
+        form.addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            // Get input values
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let phone = document.getElementById("phone").value;
+
+            // Create user object
+            let user = {
+                name: name,
+                email: email,
+                phone: phone
+            };
+
+            // Convert object into JSON string
+            let jsonData = JSON.stringify(user);
+
+            // Save data in LocalStorage
+            localStorage.setItem("userData", jsonData);
+
+            alert("Data saved successfully!");
+
+            // Display saved data
+            displayUserData();
+
+            // Clear form
+            form.reset();
+
+        });
+
+        // Retrieve and display data
+        function displayUserData() {
+
+            // Get data from LocalStorage
+            let savedData = localStorage.getItem("userData");
+
+            if (savedData) {
+
+                // Convert JSON string back into object
+                let user = JSON.parse(savedData);
+
+                // Display user information
+                displayData.innerHTML = `
+                    <p>Name: ${user.name}</p>
+                    <p>Email: ${user.email}</p>
+                    <p>Phone: ${user.phone}</p>
+                `;
+
+            } else {
+
+                displayData.innerHTML = "No user data found.";
+
+            }
+        }
+
+        // Display previously saved data when page loads
+        displayUserData();
+
+    </script>
+
+</body>
+</html>

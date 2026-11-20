@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: green;
+        }
+
+        .edit-btn {
+            background-color: blue;
+        }
+
+        .delete-btn {
+            background-color: red;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Student Registration System</h2>
+
+    <!-- Student Form -->
+
+    <form id="studentForm">
+
+        <input type="text" id="name"
+            placeholder="Enter Student Name" required>
+
+        <input type="email" id="email"
+            placeholder="Enter Email" required>
+
+        <input type="tel" id="phone"
+            placeholder="Enter Phone Number" required>
+
+        <select id="course" required>
+            <option value="">Select Course</option>
+            <option value="HTML">HTML</option>
+            <option value="CSS">CSS</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="React JS">React JS</option>
+            <option value="Node JS">Node JS</option>
+        </select>
+
+        <button type="submit" class="save-btn" id="submitBtn">
+            Register Student
+        </button>
+
+    </form>
+
+
+    <!-- Student Table -->
+
+    <h2>Registered Students</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Course</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="studentTable">
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script>
+
+// Step 1: Get HTML elements
+
+const studentForm = document.getElementById("studentForm");
+
+const studentTable = document.getElementById("studentTable");
+
+const submitBtn = document.getElementById("submitBtn");
+
+
+// Step 2: Create an array
+
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+
+// Step 3: Track editing student
+
+let editIndex = null;
+
+
+// Step 4: Save student data in LocalStorage
+
+function saveToLocalStorage() {
+
+    let jsonData = JSON.stringify(students);
+
+    localStorage.setItem("students", jsonData);
+
+}
+
+
+// Step 5: Display all students
+
+function displayStudents() {
+
+    studentTable.innerHTML = "";
+
+    students.forEach(function(student, index) {
+
+        let row = `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.email}</td>
+                <td>${student.phone}</td>
+                <td>${student.course}</td>
+
+                <td>
+                    <button class="edit-btn"
+                        onclick="editStudent(${index})">
+                        Edit
+                    </button>
+
+                    <button class="delete-btn"
+                        onclick="deleteStudent(${index})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+
+        studentTable.innerHTML += row;
+
+    });
+
+}
+
+
+// Step 6: Add or Update Student
+
+studentForm.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    // Get form values
+
+    let name = document.getElementById("name").value.trim();
+
+    let email = document.getElementById("email").value.trim();
+
+    let phone = document.getElementById("phone").value.trim();
+
+    let course = document.getElementById("course").value;
+
+
+    // Create student object
+
+    let student = {
+
+        id: editIndex !== null
+            ? students[editIndex].id
+            : Date.now(),
+
+        name: name,
+        email: email,
+        phone: phone,
+        course: course
+
+    };
+
+
+    if (editIndex === null) {
+
+        // Add new student
+
+        students.push(student);
+
+        alert("Student Registered Successfully!");
+
+    } else {
+
+        // Update existing student
+
+        students[editIndex] = student;
+
+        alert("Student Updated Successfully!");
+
+        editIndex = null;
+
+        submitBtn.innerText = "Register Student";
+
+    }
+
+
+    // Save in LocalStorage
+
+    saveToLocalStorage();
+
+
+    // Display students
+
+    displayStudents();
+
+
+    // Reset form
+
+    studentForm.reset();
+
+});
+
+
+// Step 7: Edit Student
+
+function editStudent(index) {
+
+    let student = students[index];
+
+    document.getElementById("name").value = student.name;
+
+    document.getElementById("email").value = student.email;
+
+    document.getElementById("phone").value = student.phone;
+
+    document.getElementById("course").value = student.course;
+
+
+    editIndex = index;
+
+    submitBtn.innerText = "Update Student";
+
+}
+
+
+// Step 8: Delete Student
+
+function deleteStudent(index) {
+
+    let confirmDelete = confirm(
+        "Are you sure you want to delete this student?"
+    );
+
+    if (confirmDelete) {
+
+        students.splice(index, 1);
+
+        saveToLocalStorage();
+
+        displayStudents();
+
+        alert("Student Deleted Successfully!");
+
+    }
+
+}
+
+
+// Step 9: Display saved students when page loads
+
+displayStudents();
+
+</script>
+
+</body>
+</html>
